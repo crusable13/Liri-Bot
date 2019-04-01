@@ -7,7 +7,8 @@ var moment = require('moment');
 var command = process.argv[2];
 var input = process.argv[3];
 const request = require('request');
-
+var fs = require("fs");
+var spotify = new Spotify(keys.spotify);
 
 //TESTING LOG
 //console.log();
@@ -22,7 +23,6 @@ if (command === "concert-this") {
 
 } else if (command === "spotify-this-song") {
 
-    var spotify = new Spotify(keys.spotify);
     var track;
 
     //check function makes sure that if you don't enter a song to search, it has a default, and if you do enter something then it will have its -'s replaced with spaces
@@ -53,15 +53,64 @@ if (command === "concert-this") {
     console.log("I remeber this movie")
 
 
-} else if (command === "do-what-it says") {
-    console.log("I did what you said")
+} else if (command === "do-what-it-says") {
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        if (error) {
+            return console.log(error);
+          }
+          var commandArray = data.split(",")
+          command = commandArray[0];
+          input = commandArray[1];
+        console.log(commandArray[0])
+
+        if (command === "concert-this") {
+            var artist = input;
+            concertSearch(artist);
+            console.log("Found your concert")
+        
+        
+        } else if (command === "spotify-this-song") {
+        
+            var track;
+        
+            //check function makes sure that if you don't enter a song to search, it has a default, and if you do enter something then it will have its -'s replaced with spaces
+        
+            var check = function (str) {
+        
+                if (str === undefined) { track = "The Sign" }
+        
+                else {
+                    track = str.replace(/-/gi, " ");
+                };
+            }
+            check(input);
+            spotifySearch(track);
+        
+           
+            console.log("This song sucks")
+            
+        
+        } else if (command === "movie-this") {
+            var searchTerm = function () {
+                if (input === undefined) { return "Mr. Nobody" }
+                else {
+                    return input.replace(/-/gi, "+");
+                };
+            };
+            movieSearch(searchTerm());
+            console.log("I remeber this movie")
+        
+        
+        }
+
+    })
+    console.log("I did what it said")
 };
 
 ///console.log(command); 
 
 function spotifySearch(song) {
-    spotify
-    .search({ type: 'track', query: song, limit: 1 })
+    spotify.search({ type: 'track', query: song, limit: 1 })
     .then(function(response) {
         var songs = response.tracks.items;
         var artists = songs[0].artists[0].name;
