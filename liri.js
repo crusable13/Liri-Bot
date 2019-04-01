@@ -4,14 +4,13 @@ var keys = require("./assets/JS/keys.js");
 var Spotify = require('node-spotify-api');
 var axios = require("axios");
 var moment = require('moment');
-var spotify = new Spotify(keys.spotify);
 var command = process.argv[2];
 var input = process.argv[3];
-
+const request = require('request');
 
 
 //TESTING LOG
-console.log("TEST LOG");
+//console.log();
 ///////////////
 
 
@@ -22,26 +21,57 @@ if (command === "concert-this") {
 
 
 } else if (command === "spotify-this-song") {
-    console.log("This song sucks")
 
+    var spotify = new Spotify(keys.spotify);
+    var track;
+    var check = function (str) {
+
+        if (str === undefined) { track = "The Sign" }
+
+        else {
+            track = str.replace(/-/gi, " ");
+            console.log(track)
+        };
+    }
+    check(input);
+    spotifySearch(track);
+
+   
+    console.log("This song sucks")
+    
 
 } else if (command === "movie-this") {
     var searchTerm = function () {
         if (input === undefined) { return "Mr. Nobody" }
         else {
             return input.replace(/-/gi, "+");
-        }
-    }
+        };
+    };
     movieSearch(searchTerm());
     console.log("I remeber this movie")
 
 
 } else if (command === "do-what-it says") {
     console.log("I did what you said")
-}
+};
 
 ///console.log(command); 
 
+function spotifySearch(song) {
+    spotify
+    .search({ type: 'track', query: song, limit: 5 })
+    .then(function(response) {
+        var songs = response.tracks.items;
+        var artists = songs[0].artists[0].name + " and " + songs[0].artists[1].name;
+        var trackName = songs[0].name;
+        var preview = songs[0].preview_url;
+      console.log(artists);
+    })
+    .catch(function(err) {
+        console.log(typeof song);
+      console.log("You had an error bud");
+    });
+}
 function concertSearch(band) {
     axios.get("https://rest.bandsintown.com/artists/" + band + "/events?app_id=codingbootcamp").then(
         function (response) {
@@ -50,12 +80,12 @@ function concertSearch(band) {
                 let city = response.data[i].venue.city;
                 let date = response.data[i].datetime.substring(0, 10);
 
-                console.log("Concert #" + (i+1) + ": " + venue + " in " + city + " on " + moment(date).format('MM/DD/YYYY'))
+                console.log("Concert #" + (i + 1) + ": " + venue + " in " + city + " on " + moment(date).format('MM/DD/YYYY'))
             }
             //console.log(response.data);
         }
     )
-}
+};
 function movieSearch(movie) {
     axios.get("http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy").then(
 
@@ -71,4 +101,4 @@ function movieSearch(movie) {
             console.log("Actors:        " + response.data.Actors)
         }
     )
-}
+};
