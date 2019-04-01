@@ -24,13 +24,15 @@ if (command === "concert-this") {
 
     var spotify = new Spotify(keys.spotify);
     var track;
+
+    //check function makes sure that if you don't enter a song to search, it has a default, and if you do enter something then it will have its -'s replaced with spaces
+
     var check = function (str) {
 
         if (str === undefined) { track = "The Sign" }
 
         else {
             track = str.replace(/-/gi, " ");
-            console.log(track)
         };
     }
     check(input);
@@ -59,17 +61,21 @@ if (command === "concert-this") {
 
 function spotifySearch(song) {
     spotify
-    .search({ type: 'track', query: song, limit: 5 })
+    .search({ type: 'track', query: song, limit: 1 })
     .then(function(response) {
         var songs = response.tracks.items;
-        var artists = songs[0].artists[0].name + " and " + songs[0].artists[1].name;
+        var artists = songs[0].artists[0].name;
         var trackName = songs[0].name;
         var preview = songs[0].preview_url;
-      console.log(artists);
+        var trackAlbum = songs[0].album.name;
+      console.log("Artist: " + artists);
+      console.log("Title: " + trackName);
+      console.log("Preview Link: " + preview)
+      console.log("Album: " + trackAlbum);
     })
     .catch(function(err) {
-        console.log(typeof song);
-      console.log("You had an error bud");
+        console.log(err)
+        console.log("You had an error bud");
     });
 }
 function concertSearch(band) {
